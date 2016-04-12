@@ -33,6 +33,7 @@
     **/
     .post((req, res) => {
       let newModel = getModelRequest(req);
+      console.log(newModel);
 
       newModel.id = Date.now();
       newModel.hide = false;

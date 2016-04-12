@@ -46,7 +46,7 @@
   /**
   * ROUTER
   **/
-  server.use(todosRoutes)
+  server.use(postsRoutes)
 
   /**
   * START SERVER if we're not someone else's dependency
