@@ -1,10 +1,10 @@
-(function () {
+(() => {
 'use strict'
 
   /**
    * log the url and body when is a POST or PUT
   **/
-  let logger = ((req,res,next) => {
+  let logger = (req,res,next) => {
     let _method = req.method,
     _body   = req.body,
     _path   = `${_method}  ${res.req.originalUrl}`;
@@ -16,7 +16,7 @@
     }
 
     next();
-  });
+  };
 
   module.exports = logger;
 })()

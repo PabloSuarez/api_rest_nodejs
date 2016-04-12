@@ -9,7 +9,7 @@
       bodyParser  = require('body-parser'),
       mongoose    = require('mongoose'),
       cors        = require('cors'),
-      todoRoutes  = require('./api/todos'),
+      postsRoutes  = require('./api/postsApp'),
       logUrl      = require('./api/utils/log')
 
 
@@ -41,21 +41,22 @@
   /**
   * custom log
   **/
-  server.use(logUrl)
+  // server.use(logUrl)
 
   /**
   * ROUTER
   **/
-  server.use(todoRoutes)
+  server.use(todosRoutes)
 
   /**
   * START SERVER if we're not someone else's dependency
   **/
   if (!module.parent) {
-    mongoose.connect('mongodb://localhost/api_rest_nodejs', function() {
-      server.listen(port, function() {
+    mongoose.connect('mongodb://localhost/post-js', (() => {
+      logger.info('Connected with mongoose on post-js')
+      server.listen(port,(() => {
         logger.info('Server on http://localhost:%s/', port)
-      })
-    })
+      }))
+    }))
   }
 })();

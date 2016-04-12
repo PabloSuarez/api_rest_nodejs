@@ -1,13 +1,28 @@
-(function(){
+(() => {
   'use strict';
 
-  let logger = require('../logger'),
-      app = require('express')(),
-      Todo = require('./model')
+  let app = require('express')(),
+      Model = require('./model'),
+      config = require('./config');
 
 
-  app.route('/api/todo/:id?/')
-    .all(function (req, res, next) {
+  /**
+   * Read CONFIGURATIONS
+  **/
+  let modelName = config.modelName;
+
+
+  /**
+   * Read post object
+  **/
+  let getModelRequest = (req) => req.body[`${modelName}`];
+
+
+  /**
+   * set Route
+  **/
+  app.route(`/api/${modelName}/:id?/`)
+    .all((req, res, next) => {
       res.set('Content-Type', 'application/json')
       next()
     })
@@ -16,22 +31,23 @@
     /**
      * POST
     **/
-    .post(function(req, res) {
-      let newTodo = req.body.todo;
-      newTodo.id = Date.now()
+    .post((req, res) => {
+      let newModel = getModelRequest(req);
 
-      Todo.create(newTodo, function (err, data) {
+      newModel.id = Date.now();
+      newModel.hide = false;
+
+      Model.create(newModel, (err, data) => {
         if(!err){
           res.set('Content-Type','application/json')
           res.status(201)
           res.json({
-            todo: newTodo
+            data: newModel
           })
           return
         }
         res.status(500)
         res.json({message: 'no results'})
-
       })
     })
 
@@ -39,16 +55,16 @@
     /**
      * GET
     **/
-    .get(((req, res) => {
+    .get((req, res) => {
       let id = req.params.id
 
       if(!id) {
-        Todo.find({}, function (err, data) {
+        Model.find({}, (err, data) => {
           if(!err){
             return res
               .status(200)
               .json({
-                todo: data
+                data: data
               })
           }
           return res
@@ -56,42 +72,42 @@
             .json({message: 'no results'})
         })
       }else{
-        Todo.findOne({id: id}, function (err, data) {
+        Model.findOne({id: id}, (err, data) => {
           if(!err && data){
             return res
               .status(200)
               .json({
-                todo: data
+                data: data
               })
           }
           res.status(400)
           res.json({message: 'no results'})
         })
       }
-    }))
+    })
 
 
     /**
      * PUT
     **/
-    .put(function (req, res) {
+    .put((req, res) => {
       let id = req.params.id
-      let newTodo = req.body.todo
+      let newModel = getModelRequest(req);
 
-      if(!id || !newTodo){
+      if(!id || !newModel){
         return res
           .status(404)
-          .json({message: 'required id as parameter and todo in body'})
+          .json({message: `required id as parameter and ${modelName} in body`})
       }
 
-      newTodo.id = id
+      newModel.id = id
 
-      Todo.update({'id':id}, newTodo, function(err, data) {
+      Model.update({'id':id}, newModel, (err, data) => {
         if(!err){
           return res
             .status(200)
             .json({
-              todo: newTodo
+              data: newModel
             })
         }
         res.status(304)
@@ -103,7 +119,7 @@
     /**
      * DELETE
     **/
-    .delete(function (req, res) {
+    .delete((req, res) => {
       let id = req.params.id
 
       if(!id){
@@ -112,7 +128,7 @@
           .json({message: 'required id as parameter'})
       }
 
-      Todo.findOne({'id':id}, function (err, data) {
+      Model.findOne({'id':id}, (err, data) => {
         if(err){
           return res
             .status(500)
@@ -125,16 +141,32 @@
             .json({message: 'no results'})
         }
 
-        Todo.remove({'id':id}, function (err, data) {
+        Model.remove({'id':id}, (err, data) => {
           if(!err){
             return res
               .status(204)
               .send({message: 'deleted'})
           }
         })
-
       })
-    })
+    });
+
+
+
+    /**
+     * DELETE ALL
+    **/
+    app.route(`/api/clean/${modelName}/`)
+      .delete((req, res) => {
+
+        Model.remove({}, (err, data) => {
+          if(!err){
+            return res
+              .status(204)
+              .send({data: data})
+          }
+        })
+      });
 
 
   module.exports = app

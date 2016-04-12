@@ -1,12 +1,17 @@
-var winston = require('winston');
+(() => {
+  'use strict';
 
- module.exports = new (winston.Logger)({
-  transports: [
-    new (winston.transports.Console)({
-      colorize: true,
-      prettyPrint: true,
-      level: 'debug',
-      label: 'todo-api'
-    })
-  ]
-});
+  let winston = require('winston'),
+      gralConfig = require('../config');
+
+  module.exports = new (winston.Logger)({
+    transports: [
+      new (winston.transports.Console)({
+        colorize: true,
+        prettyPrint: true,
+        level: 'debug',
+        label: `${gralConfig.name}`
+      })
+    ]
+  });
+})();
