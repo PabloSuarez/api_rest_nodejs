@@ -1,10 +1,7 @@
-(() => {
-  'use strict';
+'use strict';
 
-  let config = {
-    modelName: 'post'
-  };
+let config = {
+  modelName: 'post'
+};
 
-  module.exports = config;
-
-})();
+module.exports = config;

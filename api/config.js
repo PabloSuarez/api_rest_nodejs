@@ -1,9 +1,7 @@
-(() => {
-  'use strict';
+'use strict';
 
-  let config = {
-    name: 'API-REST nodejs'
-  };
+let config = {
+  name: 'API-REST nodejs'
+};
 
-  module.exports = config;
-})();
+module.exports = config;
