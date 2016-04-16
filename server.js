@@ -9,6 +9,7 @@ let express = require('express'),
     mongoose    = require('mongoose'),
     cors        = require('cors'),
     postsRoutes  = require('./api/postsApp'),
+    albumsRoutes  = require('./api/albumsApp'),
     logUrl      = require('./api/utils/log')
 
 
@@ -46,6 +47,7 @@ server.use(bodyParser.urlencoded({ extended: false }))
 * ROUTER
 **/
 server.use(postsRoutes)
+server.use(albumsRoutes)
 
 /**
 * START SERVER if we're not someone else's dependency
