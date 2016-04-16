@@ -41,7 +41,7 @@ server.use(bodyParser.urlencoded({ extended: false }))
 /**
 * custom log
 **/
-// server.use(logUrl)
+server.use(logUrl)
 
 /**
 * ROUTER
