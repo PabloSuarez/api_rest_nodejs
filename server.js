@@ -10,6 +10,7 @@ let express = require('express'),
     cors        = require('cors'),
     postsRoutes  = require('./api/postsApp'),
     albumsRoutes  = require('./api/albumsApp'),
+    dummyData  = require('./api/dummyData'),
     logUrl      = require('./api/utils/log')
 
 
@@ -48,6 +49,9 @@ server.use(logUrl)
 **/
 server.use(postsRoutes)
 server.use(albumsRoutes)
+
+// create a route when create dummy data
+// server.use(dummyData)
 
 /**
 * START SERVER if we're not someone else's dependency
