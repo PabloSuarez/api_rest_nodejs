@@ -17,16 +17,12 @@
     "gulp": "^3.9.0"
   },
   "devDependencies": {
-    "async": "^1.4.2",
-    "chai": "~1.9.1",
-    "chai-as-promised": "~4.1.1",
-    "mocha": "~1.21.3",
-    "supertest": "~0.13.0",
-    "supertest-as-promised": "^2.0.2",
-    "watchify": "^3.7.0"
+    "body-parser": "^1.13.3",
+    "express": "^4.13.3",
+    "mongodb": "^2.1.6"
   },
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "test": "make test"
   },
   "repository": {

@@ -1,66 +1,111 @@
-'use strict';
+let express = require("express");
+let path = require("path");
+let bodyParser = require("body-parser");
+let mongodb = require("mongodb");
+let ObjectID = mongodb.ObjectID;
 
-/**
- * Module dependencies
-**/
-let express = require('express'),
-    logger  = require('./api/logger'),
-    bodyParser  = require('body-parser'),
-    mongoose    = require('mongoose'),
-    cors        = require('cors'),
-    postsRoutes  = require('./api/postsApp'),
-    albumsRoutes  = require('./api/albumsApp'),
-    dummyData  = require('./api/dummyData'),
-    logUrl      = require('./api/utils/log')
+let CONTACTS_COLLECTION = "contacts";
 
+let app = express();
+app.use(express.static(__dirname + "/client/public"));
+app.use(bodyParser.json());
 
-/**
- * LOCALS VARS
-**/
-let server  = module.exports = express()
-let port    = process.env.PORT || 3000
+// Create a database variable outside of the database connection callback to reuse the connection pool in your app.
+let db;
 
+// Connect to the database before starting the application server.
+mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
+  if (err) {
+    console.log(err);
+    process.exit(1);
+  }
 
-/**
- * CONFIGURATIONS
- *
- * enable request origin form localhost
-**/
-server.use(cors({allowedOrigins: ['*']}))
+  // Save database object from the callback for reuse.
+  db = database;
+  console.log("Database connection ready");
 
-/**
- * where are the assets?
-**/
-server.use(express.static('client/public'))
+  // Initialize the app.
+  let server = app.listen(process.env.PORT || 8080, function () {
+    let port = server.address().port;
+    console.log("App now running on port", port);
+  });
+});
 
-/**
-* parse json requests
-**/
-server.use(bodyParser.json())
-server.use(bodyParser.urlencoded({ extended: false }))
+// CONTACTS API ROUTES BELOW
 
-/**
-* custom log
-**/
-server.use(logUrl)
-
-/**
-* ROUTER
-**/
-server.use(postsRoutes)
-server.use(albumsRoutes)
-
-// create a route when create dummy data
-// server.use(dummyData)
-
-/**
-* START SERVER if we're not someone else's dependency
-**/
-if (!module.parent) {
-  mongoose.connect('mongodb://localhost/post-js', () => {
-    logger.info('Connected with mongoose on post-js')
-    server.listen(port, () => {
-      logger.info('Server on http://localhost:%s/', port)
-    })
-  })
+// Generic error handler used by all endpoints.
+function handleError(res, reason, message, code) {
+  console.log("ERROR: " + reason);
+  res.status(code || 500).json({"error": message});
 }
+
+/*  "/contacts"
+ *    GET: finds all contacts
+ *    POST: creates a new contact
+ */
+
+app.get("/contacts", function(req, res) {
+  db.collection(CONTACTS_COLLECTION).find({}).toArray(function(err, docs) {
+    if (err) {
+      handleError(res, err.message, "Failed to get contacts.");
+    } else {
+      res.status(200).json(docs);
+    }
+  });
+});
+
+app.post("/contacts", function(req, res) {
+  let newContact = req.body;
+  newContact.createDate = new Date();
+
+  if (!(req.body.firstName || req.body.lastName)) {
+    handleError(res, "Invalid user input", "Must provide a first or last name.", 400);
+  }
+
+  db.collection(CONTACTS_COLLECTION).insertOne(newContact, function(err, doc) {
+    if (err) {
+      handleError(res, err.message, "Failed to create new contact.");
+    } else {
+      res.status(201).json(doc.ops[0]);
+    }
+  });
+});
+
+/*  "/contacts/:id"
+ *    GET: find contact by id
+ *    PUT: update contact by id
+ *    DELETE: deletes contact by id
+ */
+
+app.get("/contacts/:id", function(req, res) {
+  db.collection(CONTACTS_COLLECTION).findOne({ _id: new ObjectID(req.params.id) }, function(err, doc) {
+    if (err) {
+      handleError(res, err.message, "Failed to get contact");
+    } else {
+      res.status(200).json(doc);
+    }
+  });
+});
+
+app.put("/contacts/:id", function(req, res) {
+  let updateDoc = req.body;
+  delete updateDoc._id;
+
+  db.collection(CONTACTS_COLLECTION).updateOne({_id: new ObjectID(req.params.id)}, updateDoc, function(err, doc) {
+    if (err) {
+      handleError(res, err.message, "Failed to update contact");
+    } else {
+      res.status(204).end();
+    }
+  });
+});
+
+app.delete("/contacts/:id", function(req, res) {
+  db.collection(CONTACTS_COLLECTION).deleteOne({_id: new ObjectID(req.params.id)}, function(err, result) {
+    if (err) {
+      handleError(res, err.message, "Failed to delete contact");
+    } else {
+      res.status(204).end();
+    }
+  });
+});
