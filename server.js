@@ -9,8 +9,6 @@ let express = require('express'),
     mongoose    = require('mongoose'),
     cors        = require('cors'),
     postsRoutes  = require('./api/postsApp'),
-    albumsRoutes  = require('./api/albumsApp'),
-    dummyData  = require('./api/dummyData'),
     logUrl      = require('./api/utils/log')
 
 
@@ -48,10 +46,7 @@ server.use(logUrl)
 * ROUTER
 **/
 server.use(postsRoutes)
-server.use(albumsRoutes)
 
-// create a route when create dummy data
-// server.use(dummyData)
 
 /**
 * START SERVER if we're not someone else's dependency
@@ -59,6 +54,7 @@ server.use(albumsRoutes)
 if (!module.parent) {
   mongoose.connect('mongodb://localhost/post-js', () => {
     logger.info('Connected with mongoose on post-js')
+
     server.listen(port, () => {
       logger.info('Server on http://localhost:%s/', port)
     })
