@@ -32,7 +32,7 @@ app.route(`/api/${modelName}/:id?/`)
   **/
   .post((req, res) => {
     let newModel = getModelRequest(req);
-    console.log(newModel);
+    console.log('newModel', newModel);
 
     newModel.id = Date.now();
     newModel.hide = false;
