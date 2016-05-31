@@ -9,6 +9,7 @@ let express = require('express'),
     mongoose    = require('mongoose'),
     cors        = require('cors'),
     postsRoutes  = require('./api/postsApp'),
+    chatsRoutes  = require('./api/chats'),
     logUrl      = require('./api/utils/log')
 
 
@@ -16,7 +17,7 @@ let express = require('express'),
  * LOCALS VARS
 **/
 let server  = module.exports = express()
-let port    = process.env.PORT || 3000
+let port    = process.env.PORT || 3200
 
 
 /**
@@ -46,6 +47,7 @@ server.use(logUrl)
 * ROUTER
 **/
 server.use(postsRoutes)
+server.use(chatsRoutes)
 
 
 /**
